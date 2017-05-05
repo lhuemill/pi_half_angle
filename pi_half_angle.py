@@ -25,7 +25,7 @@ iteration.
   Command-line Options:
       --digits       - Digits of PI to be calculated (default: 100)
       --digits_guard - Number of additional guard digits.  Used to handle
-                       rounding within calculation (default: 60).
+                       rounding within calculation (default: 100).
 """
 
 from __future__ import print_function
@@ -79,52 +79,49 @@ def num_digits_in_common(val1, val2):
 
     return n1
 
-# ---- Main ----
-parser = argparse.ArgumentParser(description='''
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='''
         Calculates the value of PI, to a specified number of digits.
         Iteratively uses a trigonometric half-angle identity, to
         determine the circumference of a polygon with twice the
         number of sides as the previous iteration.
         ''')
-parser.add_argument('-d', '--digits', type=int, default=100,
-        help='Number of PI digits to calculate')
-parser.add_argument('-g', '--digits_guard', type=int, default=60,
-        help='Number of guard digits, to handle rounding')
-args = parser.parse_args()
+    parser.add_argument('-d', '--digits', type=int, default=100,
+            help='Number of PI digits to calculate')
+    parser.add_argument('-g', '--digits_guard', type=int, default=100,
+            help='Number of guard digits, to handle rounding')
+    args = parser.parse_args()
 
-decimal.getcontext().prec = args.digits + args.digits_guard
+    decimal.getcontext().prec = args.digits + args.digits_guard
 
-# Start with a 4-side regular polygon, a square.
-f = Decimal(1.0)
-sides = Decimal(4.0)
+    # Start with a 4-side regular polygon, a square.
+    f = Decimal(1.0)
+    sides = Decimal(4.0)
 
-num_digits = 0
-prev_num_digits = 0
-iteration = 0
+    num_digits = 0
+    prev_num_digits = 0
+    iteration = 0
 
-while num_digits < args.digits:
-    # Double the number of sides.
-    f = right_triangle.half_angle(f);
-    sides *= 2
+    while num_digits < args.digits:
+        # Double the number of sides.
+        f = right_triangle.half_angle(f);
+        sides *= 2
 
-    # Calculate a lower and upper bound for the value of PI.
-    pi_lower = (f * sides) / Decimal(2)
-    pi_upper = (((Decimal(1) / right_triangle.other_side(f)) * f)
-            * sides) / Decimal(2)
+        # Calculate a lower and upper bound for the value of PI.
+        pi_lower = (f * sides) / Decimal(2)
+        pi_upper = (((Decimal(1) / right_triangle.other_side(f)) * f)
+                * sides) / Decimal(2)
 
-    # Determine and display the number of leading digits in common between
-    # the lower and upper bounds.
-    num_digits = num_digits_in_common(pi_lower, pi_upper)
-    print('%8i %10s %.*s' % (iteration, num_digits, num_digits + 1, pi_lower) )
+        # Determine and display the number of leading digits in common between
+        # the lower and upper bounds.
+        num_digits = num_digits_in_common(pi_lower, pi_upper)
+        print('%8i %10s %.*s'
+                % (iteration, num_digits, num_digits + 1, pi_lower) )
 
-    # Still numerically stable?
-    if num_digits < prev_num_digits:
-        print(numerically_unstable_msg)
-        # print('''
-        #         ---- Numerically Unstable ---
-        #         Use --digits_guard to increase the number of guard digits.
-        #       ''')
-        raise SystemExit(1)
-    prev_num_digits = num_digits
+        # Still numerically stable?
+        if num_digits < prev_num_digits:
+            print(numerically_unstable_msg)
+            raise SystemExit(1)
+        prev_num_digits = num_digits
 
-    iteration += 1
+        iteration += 1
