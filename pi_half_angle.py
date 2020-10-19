@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 """Digits of PI Calculator
 
 Copyright 2017 Louis Huemiller
@@ -29,6 +29,7 @@ iteration.
 """
 
 from __future__ import print_function
+from __future__ import division
 
 import argparse
 import decimal
